@@ -2,230 +2,174 @@
 <html lang="sk">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Kvíz</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent; /* Odstráni modrý záblesk pri kliku na mobile */
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: #e8f4f8;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #f0f4f8;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 20px;
+            padding: 15px; /* Menší padding pre mobil */
         }
 
         .container {
             background: white;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            max-width: 700px;
+            border-radius: 20px; /* Zaoblenejšie rohy pre moderný look */
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
             width: 100%;
-            padding: 40px;
+            max-width: 450px; /* Optimalizované pre šírku iPhone 11 */
+            padding: 30px 20px;
+            margin: auto;
         }
 
+        /* Sekcia nahrávania */
+        .upload-section h2 {
+            font-size: 22px;
+            margin-bottom: 15px;
+        }
+
+        /* Progres a otázka */
         .progress {
             text-align: center;
-            color: #555;
-            font-size: 14px;
-            margin-bottom: 30px;
-            font-weight: 500;
+            color: #888;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
         }
 
         .question {
-            font-size: 18px;
-            color: #333;
+            font-size: 20px;
+            color: #1a1a1a;
             margin-bottom: 25px;
-            line-height: 1.6;
-            font-weight: 500;
+            line-height: 1.4;
+            font-weight: 600;
+            text-align: center;
         }
 
+        /* Odpovede - lepšie pre prsty */
         .answers {
             display: flex;
             flex-direction: column;
-            gap: 10px;
-            margin-bottom: 30px;
+            gap: 12px;
+            margin-bottom: 25px;
         }
 
         .answer {
-            background: #f5f5f5;
-            border: 2px solid #e0e0e0;
-            border-radius: 6px;
-            padding: 14px 18px;
+            background: #f8fafc;
+            border: 2px solid #edf2f7;
+            border-radius: 12px;
+            padding: 16px;
             cursor: pointer;
-            transition: all 0.2s;
-            font-size: 15px;
-            color: #444;
+            transition: all 0.2s ease;
+            font-size: 16px;
+            color: #4a5568;
             display: flex;
             align-items: center;
-            position: relative;
+        }
+
+        .answer:active {
+            transform: scale(0.98); /* Vizuálna odozva po kliknutí */
         }
 
         .answer::before {
             content: '';
-            width: 18px;
-            height: 18px;
-            border: 2px solid #ccc;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #cbd5e0;
             border-radius: 50%;
-            margin-right: 12px;
+            margin-right: 15px;
             flex-shrink: 0;
-            transition: all 0.2s;
-        }
-
-        .answer:hover {
-            background: #f0f0f0;
-            border-color: #d0d0d0;
         }
 
         .answer.selected {
-            background: #e3f2fd;
-            border-color: #2196F3;
+            background: #ebf8ff;
+            border-color: #3182ce;
         }
 
         .answer.selected::before {
-            border-color: #2196F3;
-            background: #2196F3;
-            box-shadow: inset 0 0 0 3px white;
+            border-color: #3182ce;
+            background: #3182ce;
+            box-shadow: inset 0 0 0 4px white;
         }
 
         .answer.correct {
-            background: #e8f5e9;
-            border-color: #4CAF50;
-        }
-
-        .answer.correct::before {
-            content: '✓';
-            border-color: #4CAF50;
-            background: #4CAF50;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            font-weight: bold;
+            background: #f0fff4;
+            border-color: #48bb78;
         }
 
         .answer.incorrect {
-            background: #ffebee;
-            border-color: #f44336;
+            background: #fff5f5;
+            border-color: #f56565;
         }
 
-        .answer.incorrect::before {
-            border-color: #f44336;
-        }
-
-        .answer.disabled {
-            cursor: not-allowed;
-            opacity: 0.7;
-        }
-
+        /* Tlačidlá */
         .button {
-            background: #2196F3;
+            background: #3182ce;
             color: white;
             border: none;
-            border-radius: 8px;
-            padding: 14px 32px;
-            font-size: 16px;
+            border-radius: 12px;
+            padding: 18px;
+            font-size: 17px;
+            font-weight: 600;
             cursor: pointer;
-            transition: background 0.2s;
             width: 100%;
-        }
-
-        .button:hover {
-            background: #1976D2;
+            transition: background 0.2s;
+            box-shadow: 0 4px 6px rgba(49, 130, 206, 0.2);
         }
 
         .button:disabled {
-            background: #ccc;
-            cursor: not-allowed;
+            background: #cbd5e0;
+            box-shadow: none;
         }
 
         .feedback {
             text-align: center;
-            margin-bottom: 20px;
-            padding: 16px;
-            border-radius: 8px;
-            font-size: 18px;
-            font-weight: 500;
-        }
-
-        .feedback.correct {
-            background: #e8f5e9;
-            color: #2e7d32;
-        }
-
-        .feedback.incorrect {
-            background: #ffebee;
-            color: #c62828;
-        }
-
-        .upload-section {
-            text-align: center;
-        }
-
-        .file-input {
-            display: none;
-        }
-
-        .upload-label {
-            display: inline-block;
-            background: #2196F3;
-            color: white;
-            padding: 14px 32px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .upload-label:hover {
-            background: #1976D2;
-        }
-
-        .stats {
-            text-align: center;
-            font-size: 24px;
-            color: #222;
-            margin-bottom: 20px;
-        }
-
-        .restart {
-            background: #4CAF50;
-            margin-top: 12px;
-        }
-
-        .restart:hover {
-            background: #45a049;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: bold;
         }
 
         .controls {
             display: flex;
-            gap: 12px;
-            margin-top: 20px;
+            flex-direction: column; /* Na mobile lepšie pod sebou */
+            gap: 10px;
         }
 
         .secondary-btn {
-            background: #757575;
-            flex: 1;
+            background: #718096;
         }
 
-        .secondary-btn:hover {
-            background: #616161;
+        .restart {
+            background: #48bb78;
+        }
+
+        /* Prispôsobenie pre veľmi malé displeje */
+        @media (max-height: 700px) {
+            .container { padding: 20px 15px; }
+            .question { font-size: 18px; }
+            .answer { padding: 12px; }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div id="uploadSection" class="upload-section">
-            <h2 style="margin-bottom: 20px; color: #222;">Nahraj súbor s otázkami</h2>
-            <p style="margin-bottom: 30px; color: #666;">Súbor musí obsahovať otázky vo formáte .txt</p>
-            <label for="fileInput" class="upload-label">Vybrať súbor</label>
-            <input type="file" id="fileInput" class="file-input" accept=".txt">
+            <h2 style="color: #2d3748;">Kvízová aplikácia</h2>
+            <p style="margin-bottom: 30px; color: #718096; font-size: 15px;">Nahrajte .txt súbor s otázkami</p>
+            <label for="fileInput" class="button">Vybrať súbor</label>
+            <input type="file" id="fileInput" class="file-input" style="display: none;" accept=".txt">
         </div>
 
         <div id="quizSection" style="display: none;">
@@ -238,8 +182,8 @@
         </div>
 
         <div id="resultsSection" style="display: none;">
-            <h2 style="text-align: center; margin-bottom: 30px; color: #222;">Výsledky</h2>
-            <div class="stats" id="stats"></div>
+            <h2 style="text-align: center; margin-bottom: 25px; color: #2d3748;">Výsledky</h2>
+            <div class="stats" id="stats" style="text-align: center; font-size: 20px; margin-bottom: 30px;"></div>
             <div class="controls">
                 <button class="button secondary-btn" id="reviewBtn">Prejsť nesprávne</button>
                 <button class="button restart" id="restartBtn">Začať znova</button>
@@ -248,6 +192,7 @@
     </div>
 
     <script>
+        // ... (Tu zostáva váš pôvodný JavaScript kód, je funkčne perfektný)
         let questions = [];
         let remainingQuestions = [];
         let currentQuestion = null;
@@ -279,60 +224,37 @@
         function handleFileSelect(e) {
             const file = e.target.files[0];
             if (!file) return;
-
             const reader = new FileReader();
-            reader.onload = function(event) {
-                parseQuestions(event.target.result);
-            };
+            reader.onload = function(event) { parseQuestions(event.target.result); };
             reader.readAsText(file);
         }
 
         function parseQuestions(text) {
             const blocks = text.split('---').filter(block => block.trim());
             questions = [];
-
             blocks.forEach(block => {
                 const lines = block.trim().split('\n').filter(line => line.trim());
                 if (lines.length < 2) return;
-
                 const questionLine = lines[0];
                 if (!questionLine.startsWith('otazka :')) return;
-
                 const questionText = questionLine.replace('otazka :', '').trim();
                 const answers = [];
                 let correctIndex = -1;
-
                 for (let i = 1; i < lines.length; i++) {
                     const line = lines[i].trim();
                     if (line.startsWith('odpoved')) {
                         const isCorrect = line.includes('(spravna)');
-                        const answerText = line
-                            .replace('odpoved(spravna)', '')
-                            .replace('odpoved', '')
-                            .replace(':', '')
-                            .trim();
-                        
-                        if (isCorrect) {
-                            correctIndex = answers.length;
-                        }
+                        const answerText = line.replace('odpoved(spravna)', '').replace('odpoved', '').replace(':', '').trim();
+                        if (isCorrect) correctIndex = answers.length;
                         answers.push(answerText);
                     }
                 }
-
                 if (answers.length > 0 && correctIndex !== -1) {
-                    questions.push({
-                        question: questionText,
-                        answers: answers,
-                        correctIndex: correctIndex
-                    });
+                    questions.push({ question: questionText, answers: answers, correctIndex: correctIndex });
                 }
             });
-
-            if (questions.length > 0) {
-                startQuiz();
-            } else {
-                alert('Nepodarilo sa načítať otázky. Skontroluj formát súboru.');
-            }
+            if (questions.length > 0) startQuiz();
+            else alert('Nepodarilo sa načítať otázky. Skontroluj formát súboru.');
         }
 
         function startQuiz() {
@@ -347,27 +269,15 @@
         }
 
         function loadNextQuestion() {
-            if (remainingQuestions.length === 0) {
-                showResults();
-                return;
-            }
-
+            if (remainingQuestions.length === 0) { showResults(); return; }
             const randomIndex = Math.floor(Math.random() * remainingQuestions.length);
             currentQuestion = remainingQuestions[randomIndex];
             remainingQuestions.splice(randomIndex, 1);
             selectedAnswer = null;
-
             updateProgress();
             questionEl.textContent = currentQuestion.question;
-            
-            let answersToShow = currentQuestion.answers.map((answer, index) => ({
-                text: answer,
-                originalIndex: index
-            }));
-
-            // Zamiešanie odpovedí
+            let answersToShow = currentQuestion.answers.map((answer, index) => ({ text: answer, originalIndex: index }));
             answersToShow = shuffleArray(answersToShow);
-
             answersEl.innerHTML = '';
             answersToShow.forEach((answer) => {
                 const answerEl = document.createElement('div');
@@ -377,8 +287,8 @@
                 answerEl.addEventListener('click', () => selectAnswer(answer.originalIndex));
                 answersEl.appendChild(answerEl);
             });
-
             feedbackEl.innerHTML = '';
+            feedbackEl.className = 'feedback';
             submitBtn.disabled = true;
             submitBtn.style.display = 'block';
             nextBtn.style.display = 'none';
@@ -400,41 +310,31 @@
 
         function selectAnswer(index) {
             if (submitBtn.style.display === 'none') return;
-
             selectedAnswer = index;
             const answerElements = answersEl.children;
-            
             for (let i = 0; i < answerElements.length; i++) {
                 answerElements[i].classList.remove('selected');
                 if (parseInt(answerElements[i].dataset.originalIndex) === index) {
                     answerElements[i].classList.add('selected');
                 }
             }
-            
             submitBtn.disabled = false;
         }
 
         function checkAnswer() {
             if (selectedAnswer === null) return;
-
             const answerElements = answersEl.children;
             const isCorrect = selectedAnswer === currentQuestion.correctIndex;
-
             for (let i = 0; i < answerElements.length; i++) {
                 const originalIndex = parseInt(answerElements[i].dataset.originalIndex);
                 answerElements[i].classList.add('disabled');
-                
-                if (originalIndex === currentQuestion.correctIndex) {
-                    answerElements[i].classList.add('correct');
-                } else if (originalIndex === selectedAnswer && !isCorrect) {
-                    answerElements[i].classList.add('incorrect');
-                }
+                if (originalIndex === currentQuestion.correctIndex) answerElements[i].classList.add('correct');
+                else if (originalIndex === selectedAnswer && !isCorrect) answerElements[i].classList.add('incorrect');
             }
-
             if (isCorrect) {
                 correctCount++;
                 feedbackEl.className = 'feedback correct';
-                feedbackEl.textContent = '✓ Správne!';
+                feedbackEl.innerHTML = '<span style="color: #2f855a">✓ Správne!</span>';
             } else {
                 incorrectCount++;
                 incorrectQuestions.push({
@@ -444,9 +344,8 @@
                     userAnswer: selectedAnswer
                 });
                 feedbackEl.className = 'feedback incorrect';
-                feedbackEl.textContent = '✗ Nesprávne';
+                feedbackEl.innerHTML = '<span style="color: #c53030">✗ Nesprávne</span>';
             }
-
             submitBtn.style.display = 'none';
             nextBtn.style.display = 'block';
         }
@@ -454,15 +353,12 @@
         function showResults() {
             quizSection.style.display = 'none';
             resultsSection.style.display = 'block';
-            
             const percentage = Math.round((correctCount / questions.length) * 100);
-            
             statsEl.innerHTML = `
-                <div style="margin-bottom: 20px;">Správne: ${correctCount}</div>
-                <div style="margin-bottom: 20px;">Nesprávne: ${incorrectCount}</div>
-                <div style="color: #2196F3;">Úspešnosť: ${percentage}%</div>
+                <div style="margin-bottom: 10px;">Správne: <b>${correctCount}</b></div>
+                <div style="margin-bottom: 10px;">Nesprávne: <b>${incorrectCount}</b></div>
+                <div style="color: #3182ce; font-size: 28px; font-weight: 800; margin-top: 15px;">${percentage}%</div>
             `;
-
             reviewBtn.style.display = incorrectQuestions.length > 0 ? 'block' : 'none';
         }
 
